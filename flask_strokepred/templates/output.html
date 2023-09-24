@@ -1,41 +1,12 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stroke Prediction</title>
-
-    <style>
-        body {
-            background-image: url(./pictures/strokelady.jpg);
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-attachment: fixed;
-            color: aliceblue;
-            font-size: large;
-            margin-top: 40px;
-            margin-left: 50px;
-        }
-
-        .developed-by {
-            font-weight: bold;
-            font-size: large;
-            padding-left: 1200px;
-            margin-top: 50px;
-        }
-    </style>
+    <title>Stroke Risk Prediction Result</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='../css/style.css') }}">
 
 </head>
-
 <body>
-
-    <center>
-        <p class="developed-by">Developed By Mitchelle</p>
-    </center>
-
-    <h1>{{ prediction }}</h1>
+    <h1>Stroke Risk Prediction Result</h1>
+    <p>Prediction: {{ prediction }}</p>
 </body>
-
 </html>

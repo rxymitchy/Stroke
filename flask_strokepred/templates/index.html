@@ -1,151 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stroke Prediction</title>
+    <title>Stroke Risk Prediction</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
 
-    <style>
-        body {
-            background-image: url(./pictures/strokelady.jpg);
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-attachment: fixed;
-            color: aliceblue;
-        }
-
-        .box {
-            width: 500px;
-            padding: 40px;
-            margin: 30px;
-            opacity: 0.5;
-            background-color: rgb(48, 46, 46);
-            border-radius: 150px;
-            color: rgb(255, 255, 255);
-            font: 14px/1.4 "Helvetica Neue", Helvetica, Arial, sans-serif;
-        }
-
-        .center-text {
-            text-align: center;
-            font-weight: bold;
-            font-size: large;
-            padding-left: 1200px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-label {
-            font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-            font-style: oblique;
-            font-size: large;
-            padding-right: 100px;
-        }
-
-        .form-control {
-            border-radius: 15px;
-            color: rgb(0, 0, 0);
-            text-align: center;
-            font-size: medium;
-        }
-
-        .input-number {
-            width: 100px;
-        }
-
-        .input-text {
-            width: 150px;
-        }
-
-        #output {
-            font-size: 15px;
-            border-radius: 20px;
-            padding: 8px;
-            width: 200px;
-            font-weight: bold;
-        }
-    </style>
 </head>
-
 <body>
-    <p class="center-text">Developed By Mitchelle</p>
-    <div class="box">
-        <h1 class="center-text">STROKE PREDICTION</h1>
-        <form action="output" method="POST">
-            <div class="form-group">
-                <label for="gender" class="form-label">Gender :</label>
-                <select name="gender" id="gender" class="form-control">
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="age" class="form-label">Enter Age :</label>
-                <input type="number" id="age" name="age" min="1" max="100" class="form-control input-number" placeholder="e.g 1-100">
-            </div>
-            <div class="form-group">
-                <label for="hypertension" class="form-label">Hypertension :</label>
-                <select name="hypertension" id="hypertension" class="form-control">
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                </select>
-            </div>
-            <div class="form-group">
-			    <label for="heart-disease" class="form-label">Any Heart Diseases :</label>
-			    <select name="heart-disease" id="heart-disease" class="form-control">
-			        <option value="yes">Yes</option>
-			        <option value="no">No</option>
-			    </select>
-			</div>
-			<div class="form-group">
-			    <label for="marriage" class="form-label">Are You Married :</label>
-			    <select name="marriage" id="marriage" class="form-control">
-			        <option value="yes">Yes</option>
-			        <option value="no">No</option>
-			    </select>
-			</div>
-			<div class="form-group">
-			    <label for="worktype" class="form-label">Work-Type :</label>
-			    <select name="worktype" id="worktype" class="form-control">
-			        <option value="private">Private</option>
-			        <option value="self-employed">Self-Employed</option>
-			        <option value="government">Government</option>
-			        <option value="student">Student</option>
-			        <option value="others">Others</option>
-			    </select>
-			</div>
-			<div class="form-group">
-			    <label for="residency" class="form-label">Residency Type :</label>
-			    <select name="residency" id="residency" class="form-control">
-			        <option value="urban">Urban Area</option>
-			        <option value="rural">Rural Area</option>
-			    </select>
-			</div>
-			<div class="form-group">
-			    <label for="glucose" class="form-label">Enter Glucose Levels :</label>
-			    <input type="number" id="glucose" name="glucose" min="80" max="400" class="form-control input-text" placeholder="e.g 80-400">
-			</div>
-			<div class="form-group">
-			    <label for="bmi" class="form-label">Enter Your BMI :</label>
-			    <input type="number" id="bmi" name="bmi" min="16" step="0.1" class="form-control input-text" placeholder="e.g 16-45">
-			</div>
-			<div class="form-group">
-			    <label for="smoking" class="form-label">Smoking Status :</label>
-			    <select name="smoking" id="smoking" class="form-control">
-			        <option value="unknown">Unknown</option>
-			        <option value="never smoked">Never Smoked</option>
-			        <option value="smokes">Smokes</option>
-			        <option value="formerly smoked">Formerly Smoked</option>
-			        <option value="others">Others</option>
-			    </select>
-			</div>
-            <input type="submit" value="SUBMIT" id="output">
-            {% for message in get_flashed_messages() %}
-                <p style="font-size: 18px;">{{ message }}</p>
-            {% endfor %}
-        </form>
-    </div>
+    <h1>Stroke Risk Prediction</h1>
+    <form method="POST">
+        Age: <input type="number" name="age"><br><br>
+        Gender:
+        <select name="gender">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select><br><br>
+        Hypertension:
+        <input type="radio" name="hypertension" value="yes">Yes
+        <input type="radio" name="hypertension" value="no">No<br><br>
+        Heart Disease:
+        <input type="radio" name="heart_disease" value="yes">Yes
+        <input type="radio" name="heart_disease" value="no">No<br><br>
+        Glucose Level: <input type="number" name="glucose_level"><br><br>
+        Work Type:
+        <select name="work_type">
+            <option value="student">Student</option>
+            <option value="self_employed">Self Employed</option>
+            <option value="government">Government</option>
+            <option value="others">Others</option>
+        </select><br><br>
+        Residency:
+        <select name="residency">
+            <option value="rural">Rural</option>
+            <option value="urban">Urban</option>
+        </select><br><br>
+        Married:
+        <select name="married">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select><br><br>
+        BMI: <input type="number" name="bmi"><br><br>
+        Smoking Status:
+        <select name="smoking_status">
+            <option value="unknown">Unknown</option>
+            <option value="never_smoked">Never Smoked</option>
+            <option value="formerly_smoked">Formerly Smoked</option>
+            <option value="smokes">Smokes</option>
+        </select><br><br>
+        <input type="submit" value="Predict">
+    </form>
 </body>
 </html>
+
