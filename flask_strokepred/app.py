@@ -1,13 +1,62 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, session, g
+from flask_mail import Mail, Message
+from sklearn.base import BaseEstimator
+from pathlib import Path
+
 import joblib
 import logging
 import numpy as np
-from sklearn.base import BaseEstimator
+import sqlite3
+
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'  # Change this to a secure secret key
+DATABASE = 'database.db'
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
+
+# Flask-Mail configuration
+app.config['MAIL_SERVER'] = 'your_mail_server'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'your_mail_username'
+app.config['MAIL_PASSWORD'] = 'your_mail_password'
+app.config['MAIL_DEFAULT_SENDER'] = 'your_mail_username'
+
+mail = Mail(app)
+
+# Create a database if it doesn't exist
+Path(DATABASE).touch()
+
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        app.logger.info("Creating a new database connection.")
+        db = g._database = sqlite3.connect(DATABASE)
+    return db
+
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+
+# Initialize the database with a user table
+def init_db():
+    with app.app_context():
+        db = get_db()
+        try:
+            with app.open_resource('schema.sql', mode='r') as f:
+                db.cursor().executescript(f.read())
+            db.commit()
+            print("Database initialized successfully.")
+        except Exception as e:
+            print(f"Error initializing database: {e}")
+
+init_db()
 
 # Define the EnsembleModel class
 class EnsembleModel(BaseEstimator):
@@ -53,6 +102,146 @@ except Exception as e:
 
 @app.route('/')
 def home():
+    if 'username' in session:
+        return render_template('home.html', username=session['username'])
+    return redirect(url_for('login'))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+
+        # Check if the username is already taken
+        if is_username_taken(username):
+            return render_template('register.html', error='Username is already taken. Please choose another username.')
+
+        # Check if the email is already registered
+        if is_email_registered(email):
+            return render_template('register.html', error='Email is already registered. Please use another email.')
+
+        # Check if passwords match
+        if password != confirm_password:
+            return render_template('register.html', error='Passwords do not match. Please try again.')
+
+        # Save the user to the database
+        save_user(username, email, password)
+
+        # Send confirmation message via email
+        send_email_confirmation(email)
+
+        # Redirect to login page with a recommendation to log in
+        return redirect(url_for('login', recommend_login=True))
+
+    return render_template('register.html')
+
+# Function to send a confirmation email
+def send_email_confirmation(email):
+    confirmation_subject = 'Registration Confirmation'
+    confirmation_body = 'Thank you for registering! Your account has been successfully created.'
+
+    msg = Message(confirmation_subject, recipients=[email])
+    msg.body = confirmation_body
+
+    try:
+        mail.send(msg)
+    except Exception as e:
+        print(f"Error sending email confirmation: {str(e)}")
+
+
+# Function to check if a username is already taken
+def is_username_taken(username):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+    return cursor.fetchone() is not None
+
+# Function to check if an email is already registered
+def is_email_registered(email):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+    return cursor.fetchone() is not None
+
+# Function to save a user to the database
+def save_user(username, email, password):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
+                   (username, email, password))
+    db.commit()
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username_or_email = request.form['login_info']
+        password = request.form['password']
+
+        # Check if the user exists and the password is correct
+        user = get_user(username_or_email)
+        if user and user['password'] == password:
+            session['username'] = user['username']
+            return redirect(url_for('home'))
+
+        # If login is unsuccessful, display an error message
+        return render_template('login.html', error='Invalid username/email or password')
+
+    recommend_login = request.args.get('recommend_login', False)
+    return render_template('login.html', recommend_login=recommend_login)
+
+# Function to retrieve user details based on username or email
+def get_user(username_or_email):
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM users WHERE username = ? OR email = ?',
+                   (username_or_email, username_or_email))
+    result = cursor.fetchone()
+
+    if result:
+        # Convert the tuple to a dictionary for easier access
+        user_dict = {
+            'id': result[0],
+            'username': result[1],
+            'email': result[2],
+            'password': result[3]
+        }
+        return user_dict
+    else:
+        return None
+
+@app.route('/users')
+def view_users():
+    users = get_all_users()
+    return render_template('users.html', users=users)
+
+# Function to retrieve all users from the database
+def get_all_users():
+    db = get_db()
+    cursor = db.cursor()
+    cursor.execute('SELECT * FROM users')
+    results = cursor.fetchall()
+
+    users = []
+    for result in results:
+        user_dict = {
+            'id': result[0],
+            'username': result[1],
+            'email': result[2],
+            'password': result[3]
+        }
+        users.append(user_dict)
+
+    return users
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('login'))
+
+@app.route('/predict')
+def prediction_page():
     return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
@@ -105,4 +294,5 @@ def preprocess_form_data(form_data):
     return features
 
 if __name__ == '__main__':
+    init_db()
     app.run(debug=True)

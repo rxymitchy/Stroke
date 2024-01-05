@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Stroke Information</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/predict">Stroke Prediction form</a>
+            <a class="navbar-brand" href="/logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="mb-4">Understanding Stroke and Prevention</h1>
+        <div class="explanation">
+            <h2>What is a Stroke?</h2>
+            <p>
+                A stroke occurs when the blood supply to part of the brain is interrupted or reduced, depriving brain tissue of oxygen and nutrients. This can result in damage to brain cells and loss of function.
+            </p>
+
+            <h2>Types of Stroke</h2>
+            <p>
+                There are two main types of stroke: ischemic and hemorrhagic. Ischemic stroke is caused by a blockage in a blood vessel, while hemorrhagic stroke is caused by bleeding in the brain.
+            </p>
+
+            <h2>Best Practices for Stroke Prevention</h2>
+            <ul>
+                <li>Manage blood pressure</li>
+                <li>Control cholesterol levels</li>
+                <li>Maintain a healthy weight</li>
+                <li>Exercise regularly</li>
+                <li>Eat a healthy diet low in saturated fat and cholesterol</li>
+                <li>Limit alcohol intake</li>
+                <li>Don't smoke</li>
+            </ul>
+
+            <h2>Additional Information</h2>
+            <p>
+                Stroke is a leading cause of disability and death worldwide. Recognizing the symptoms and taking preventive measures can significantly reduce the risk of stroke.
+            </p>
+
+            <h2>Types of Stroke</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <img src="ischemic_stroke.jpg" class="img-fluid" alt="Ischemic Stroke">
+                    <p>Ischemic stroke: The most common type, caused by a blockage in an artery leading to the brain.</p>
+                </div>
+                <div class="col-md-6">
+                    <img src="hemorrhagic_stroke.jpg" class="img-fluid" alt="Hemorrhagic Stroke">
+                    <p>Hemorrhagic stroke: Less common, caused by bleeding in the brain.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
