@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stroke Prediction</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2 class="mt-4">Stroke Prediction</h2>
+        <form action="/predict" method="post">
+            <div class="form-group">
+                <label for="age" class="form-label">Age</label>
+                <input type="number" class="form-control" id="age" name="age" placeholder="Enter your age">
+            </div>
+
+            <div class="form-group">
+                <label for="gender" class="form-label">Gender</label>
+                <select class="form-select" id="gender" name="gender">
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="hypertension" class="form-label">Hypertension</label>
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" id="hypertension_yes" name="hypertension" value="yes">
+                    <label class="form-check-label" for="hypertension_yes">Yes</label>
+                </div>
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" id="hypertension_no" name="hypertension" value="no">
+                    <label class="form-check-label" for="hypertension_no">No</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="heart_disease" class="form-label">Heart Disease</label>
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" id="heart_disease_yes" name="heart_disease" value="yes">
+                    <label class="form-check-label" for="heart_disease_yes">Yes</label>
+                </div>
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" id="heart_disease_no" name="heart_disease" value="no">
+                    <label class="form-check-label" for="heart_disease_no">No</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="glucose_level" class="form-label">Glucose Level</label>
+                <input type="number" class="form-control" id="glucose_level" name="glucose_level" placeholder="Enter your glucose level">
+            </div>
+
+            <div class="form-group">
+                <label for="work_type" class="form-label">Work Type</label>
+                <select class="form-select" id="work_type" name="work_type">
+                    <option value="never_worked">Never Worked</option>
+                    <option value="self_employed">Self Employed</option>
+                    <option value="govt_job">Government</option>
+                    <option value="private">Private</option>
+                    <option value="children">Children</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="residency" class="form-label">Residency</label>
+                <select class="form-select" id="residency" name="residency">
+                    <option value="rural">Rural</option>
+                    <option value="urban">Urban</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="married" class="form-label">Married</label>
+                <select class="form-select" id="married" name="married">
+                    <option value="yes">Yes</option>
+                    <option value="urban">No</option> 
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="smoking_status" class="form-label">Smoking Status</label>
+                <select class="form-select" id="smoking_status" name="smoking_status">
+                    <option value="formerly_smoked">Formerly Smoked</option>
+                    <option value="never_smoked">Never Smoked</option>
+                    <option value="unknown">Unknown</option>
+                    <option value="smokes">Smokes</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="bmi" class="form-label">BMI</label>
+                <input type="number" class="form-control" id="bmi" name="bmi" placeholder="Enter your bmi">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Predict</button>
+        </form>
+
+        {% if result %}
+        <div class="mt-4">
+            <h3>{{ result }}</h3>
+        </div>
+        {% endif %}
+
+    </div>
+</body>
+</html>
