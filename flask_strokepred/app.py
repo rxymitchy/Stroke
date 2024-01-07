@@ -80,8 +80,8 @@ class EnsembleModel(BaseEstimator):
 
 # Attempt to load the trained model and scaler
 try:
-    model_path = 'ensemble_models(1).pkl'
-    scaler_path = 'scalers(1).pkl'
+    model_path = 'bagged_ensemble_model.pkl'
+    scaler_path = 'bagged_scaler.pkl' 
 
     # Check if the paths are specified correctly
     app.logger.info(f"Attempting to load model from: {model_path}")
