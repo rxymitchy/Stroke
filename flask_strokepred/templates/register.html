@@ -8,6 +8,17 @@
 <body class="bg-light">
     <div class="container mt-5">
         <h1 class="mb-4">Register</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <ul class="flashes">
+              {% for category, message in messages %}
+                <li class="alert alert-{{ category }}">{{ message }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+
         <form method="POST" action="/register">
             <label for="username">Username:</label>
             <input type="text" class="form-control" id="username" name="username" required><br>
@@ -24,9 +35,8 @@
             <button type="submit" class="btn btn-primary">Register</button>
         </form>
 
-        {% if recommend_login %}
-        <p class="mt-3">Already registered? <a href="{{ url_for('login') }}">Login here</a>.</p>
-        {% endif %}
+        <p class="mt-3">Already registered? <a href="/login">Login here</a>.</p>
+
     </div>
 </body>
 </html>

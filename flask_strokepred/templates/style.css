@@ -2,47 +2,38 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    /* background-image: url('background.jpg');  */
+    background-color: #FFC0CB; /* Pink Background Color */
+     /* background-image: url('background.jpg'); */
+    color: #fff;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    color: #fff;
 }
 
 .container {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    background-color: #fff;
+    background-color: rgba(255, 255, 255, 0.9);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 15px; /* Adjust the border-radius for rounded corners */
 }
 
 h1, h2, h3 {
     color: #333;
 }
 
-form {
-    width: 300px;
-    margin-bottom: 20px;
-}
-
-button {
-    background-color: #007bff;
-    color: #fff;
+.card {
+    background-color: #fff;
     border: none;
-    padding: 10px 20px;
-    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 15px; /* Adjust the border-radius for rounded corners */
 }
 
-button:hover {
-    background-color: #0056b3;
+.card-title {
+    color: #333;
 }
 
-.explanation {
-    margin-top: 20px;
-}
-
-/* Navigation bar styling */
 nav {
     background-color: #333;
     padding: 10px;
@@ -57,13 +48,4 @@ nav a {
 
 nav a:hover {
     text-decoration: underline;
-}
-
-/* Background image */
-body {
-    background-image: url('background.jpg'); /* Add your background image path */
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    color: #fff; /* Set text color to be readable on the background */
 }

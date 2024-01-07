@@ -1,13 +1,14 @@
-from flask import Flask, render_template, request, redirect, url_for, session, g
+from flask import Flask, render_template, request, redirect, url_for, session, g, flash
 from flask_mail import Mail, Message
 from sklearn.base import BaseEstimator
 from pathlib import Path
+
 
 import joblib
 import logging
 import numpy as np
 import sqlite3
-
+import re 
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Change this to a secure secret key
@@ -17,13 +18,11 @@ DATABASE = 'database.db'
 logging.basicConfig(level=logging.DEBUG)
 
 # Flask-Mail configuration
-app.config['MAIL_SERVER'] = 'your_mail_server'
+app.config['MAIL_SERVER'] = 'default_mail_server'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = 'your_mail_username'
-app.config['MAIL_PASSWORD'] = 'your_mail_password'
-app.config['MAIL_DEFAULT_SENDER'] = 'your_mail_username'
+app.config['MAIL_DEFAULT_SENDER'] = 'default_sender_email'
 
 mail = Mail(app)
 
@@ -102,9 +101,15 @@ except Exception as e:
 
 @app.route('/')
 def home():
-    if 'username' in session:
-        return render_template('home.html', username=session['username'])
+    username = session.get('username')
+    if username:
+        user = get_user(username)
+        if user:
+            return render_template('home.html', username=user['username'])
+        else:
+            flash('User not found. Please log in again.', 'error')
     return redirect(url_for('login'))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -113,24 +118,40 @@ def register():
         email = request.form['email']
         password = request.form['password']
         confirm_password = request.form['confirm_password']
+        user_mail_server = request.form.get('mail_server', 'default_mail_server')
+        user_mail_username = request.form.get('mail_username', 'default_sender_email')
+        user_mail_password = request.form.get('mail_password', 'default_mail_password')
 
         # Check if the username is already taken
         if is_username_taken(username):
-            return render_template('register.html', error='Username is already taken. Please choose another username.')
+            flash('Username is already taken. Please choose another username.', 'error')
+            return render_template('register.html')
 
         # Check if the email is already registered
         if is_email_registered(email):
-            return render_template('register.html', error='Email is already registered. Please use another email.')
+            flash('Email is already registered. Please use another email.', 'error')
+            return render_template('register.html')
 
         # Check if passwords match
         if password != confirm_password:
-            return render_template('register.html', error='Passwords do not match. Please try again.')
+            flash('Passwords do not match. Please try again.', 'error')
+            return render_template('register.html')
+
+        # Check password rules
+        if not (len(password) >= 8 and re.search("[a-z]", password) and re.search("[A-Z]", password) and re.search("[!@#$%^&*(),.?\":{}|<>]", password)):
+            flash('Password must be at least 8 characters and include a mix of uppercase, lowercase, and special characters.', 'error')
+            return render_template('register.html')
+
+        # Check email format
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            flash('Invalid email format. Please use a valid email address.', 'error')
+            return render_template('register.html')
 
         # Save the user to the database
         save_user(username, email, password)
 
         # Send confirmation message via email
-        send_email_confirmation(email)
+        send_email_confirmation(email, user_mail_server, user_mail_username, user_mail_password)
 
         # Redirect to login page with a recommendation to log in
         return redirect(url_for('login', recommend_login=True))
@@ -138,12 +159,19 @@ def register():
     return render_template('register.html')
 
 # Function to send a confirmation email
-def send_email_confirmation(email):
+def send_email_confirmation(email, mail_server, mail_username, mail_password):
     confirmation_subject = 'Registration Confirmation'
     confirmation_body = 'Thank you for registering! Your account has been successfully created.'
 
     msg = Message(confirmation_subject, recipients=[email])
     msg.body = confirmation_body
+
+    # Update the mail configuration dynamically
+    app.config['MAIL_SERVER'] = mail_server
+    app.config['MAIL_USERNAME'] = mail_username
+    app.config['MAIL_PASSWORD'] = mail_password
+
+    mail.init_app(app)  # Re-initialize the mail instance with updated configuration
 
     try:
         mail.send(msg)
