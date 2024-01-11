@@ -1,14 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, session, g, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, g, flash
 from flask_mail import Mail, Message
-from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import RandomForestClassifier
 from pathlib import Path
 
 import logging
-import numpy as np
 import sqlite3
 import re
-import os
+
 
 
 app = Flask(__name__)

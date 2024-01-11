@@ -1,19 +1,18 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-    <title>Stroke Information</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <!-- Font Awesome for icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-</head>
-<body class="bg-light">
-    <nav class="navbar navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/predict"><i class="fas fa-chart-line"></i> Stroke Prediction</a>
-            <a class="navbar-brand" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-        </div>
-    </nav>
+    <head>
+        <title>Stroke Information</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <!-- Font Awesome for icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    </head>
+    <body style="background-color: pink;">
+        <nav class="navbar navbar-dark bg-dark">
+            <div class="container">
+                <a class="navbar-brand" href="/predict"><i class="fas fa-chart-line"></i> Stroke Prediction</a>
+                <a class="navbar-brand" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </nav>
 
     <div class="container mt-5">
         <h1 class="mb-4"><i class="fas fa-info-circle"></i> Understanding Stroke and Prevention</h1>
@@ -27,6 +26,25 @@
                 </p>
             </div>
         </div>
+
+    <div class="container mt-5">
+        <h2 class="mb-4">Signs and Symptoms of a Stroke</h2>
+    
+        <!-- Updated card design with curved edges -->
+        <div class="card mb-4 rounded">
+            <div class="card-body">
+                <h3 class="card-title">Common Signs and Symptoms</h3>
+                <ul class="card-text">
+                    <li>Sudden numbness or weakness in the face, arm, or leg, especially on one side of the body</li>
+                    <li>Difficulty speaking or slurred speech</li>
+                    <li>Confusion or difficulty understanding speech</li>
+                    <li>Trouble seeing in one or both eyes</li>
+                    <li>Sudden severe headache with no known cause</li>
+                    <li>Dizziness, loss of balance, or coordination problems</li>
+                </ul>
+            </div>
+        </div>
+
 
         <!-- Updated card design with curved edges -->
         <div class="card mb-4 rounded">
@@ -44,6 +62,7 @@
             </div>
         </div>
 
+
         <!-- Updated card design with curved edges -->
         <div class="card mb-4 rounded">
             <div class="card-body">
@@ -53,29 +72,6 @@
                 </p>
             </div>
         </div>
-
-        <h2>Types of Stroke</h2>
-        <div class="row">
-            <div class="col-md-6">
-                <!-- Updated card design with curved edges -->
-                <div class="card mb-4 rounded">
-                    <img src="ischemic_stroke_icon.png" class="card-img-top" alt="Ischemic Stroke">
-                    <div class="card-body">
-                        <p class="card-text">Ischemic stroke: The most common type, caused by a blockage in an artery leading to the brain.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <!-- Updated card design with curved edges -->
-                <div class="card mb-4 rounded">
-                    <img src="hemorrhagic_stroke_icon.png" class="card-img-top" alt="Hemorrhagic Stroke">
-                    <div class="card-body">
-                        <p class="card-text">Hemorrhagic stroke: Less common, caused by bleeding in the brain.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Font Awesome script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
