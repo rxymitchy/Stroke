@@ -1,17 +1,18 @@
-from flask import Flask, render_template, request, redirect, url_for, session, g, flash
+from flask import Flask, render_template, request, redirect, url_for, session, g, flash, jsonify
 from flask_mail import Mail, Message
-from sklearn.base import BaseEstimator
+from sklearn.preprocessing import StandardScaler
+from sklearn.ensemble import RandomForestClassifier
 from pathlib import Path
 
-
-import joblib
 import logging
 import numpy as np
 import sqlite3
-import re 
+import re
+import os
+
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key'  # Change this to a secure secret key
+app.secret_key = 'your_secret_key'  
 DATABASE = 'database.db'
 
 # Configure logging
@@ -29,20 +30,6 @@ mail = Mail(app)
 # Create a database if it doesn't exist
 Path(DATABASE).touch()
 
-def get_db():
-    db = getattr(g, '_database', None)
-    if db is None:
-        app.logger.info("Creating a new database connection.")
-        db = g._database = sqlite3.connect(DATABASE)
-    return db
-
-
-@app.teardown_appcontext
-def close_connection(exception):
-    db = getattr(g, '_database', None)
-    if db is not None:
-        db.close()
-
 # Initialize the database with a user table
 def init_db():
     with app.app_context():
@@ -55,49 +42,19 @@ def init_db():
         except Exception as e:
             print(f"Error initializing database: {e}")
 
-init_db()
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        app.logger.info("Creating a new database connection.")
+        db = g._database = sqlite3.connect(DATABASE)
+    return db
 
-# Define the EnsembleModel class
-class EnsembleModel(BaseEstimator):
-    def __init__(self, models):
-        self.models = models  # A list of the individual models
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
 
-    def fit(self, X, y):
-        # Fit each of the models on the data
-        for model in self.models:
-            model.fit(X, y)
-        return self
-
-    def predict_proba(self, X):
-        # Averaging the predict_proba of each of the models
-        predictions = [model.predict_proba(X)[:, 1] for model in self.models]
-        return np.mean(predictions, axis=0)
-
-    def predict(self, X):
-        # Convert probabilities to final predictions
-        probabilities = self.predict_proba(X)
-        return np.where(probabilities > 0.5, 1, 0)  # Using 0.5 as threshold for binary classification
-
-# Attempt to load the trained model and scaler
-try:
-    model_path = 'bagged_ensemble_model.pkl'
-    scaler_path = 'bagged_scaler.pkl' 
-
-    # Check if the paths are specified correctly
-    app.logger.info(f"Attempting to load model from: {model_path}")
-    app.logger.info(f"Attempting to load scaler from: {scaler_path}")
-
-    model = joblib.load(model_path)
-    scaler = joblib.load(scaler_path)  # Load the scaler
-
-    if not hasattr(model, 'predict'):
-        raise ValueError("Loaded object is not a model.")
-
-    app.logger.info("Model and scaler loaded successfully.")
-except Exception as e:
-    model = None
-    scaler = None
-    app.logger.error(f"Error loading model or scaler: {e}")
 
 @app.route('/')
 def home():
@@ -109,7 +66,6 @@ def home():
         else:
             flash('User not found. Please log in again.', 'error')
     return redirect(url_for('login'))
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -272,28 +228,83 @@ def logout():
 def prediction_page():
     return render_template('index.html')
 
-@app.route('/predict', methods=['POST'])
-def predict():
-    if not model or not scaler:
-        app.logger.error("Model or scaler not loaded properly.")
-        return "Model or scaler not loaded properly.", 500
 
+def predict_stroke(features):
+ 
+    # Extract relevant features
+    age, gender_encoded, hypertension, heart_disease, glucose_level, \
+    work_type_encoded, residency_encoded, married_encoded, bmi, smoking_status_encoded = features
+
+    # Example of a simple logic to determine stroke likelihood
+    if age > 60 or (gender_encoded == 1 and age > 45) or (hypertension == 1 and age > 30) or \
+            (heart_disease == 1 and age > 40) or glucose_level > 200 or \
+            (work_type_encoded == 2 and age > 35) or (residency_encoded == 1 and age > 50) or \
+            married_encoded == 1 or (bmi > 30 and smoking_status_encoded == 3):
+        result = "You are likely to get a stroke."
+        prediction_proba = calculate_probability(age, gender_encoded, hypertension, heart_disease,
+                                                 glucose_level, work_type_encoded, residency_encoded,
+                                                 married_encoded, bmi, smoking_status_encoded)
+    else:
+        result = "You are not likely to get a stroke."
+        prediction_proba = calculate_probability(age, gender_encoded, hypertension, heart_disease,
+                                                 glucose_level, work_type_encoded, residency_encoded,
+                                                 married_encoded, bmi, smoking_status_encoded)
+
+    # Prepare the response
+    response = {
+        'result': result,
+        'prediction_proba': float(prediction_proba)
+    }
+    return response
+
+def calculate_probability(age, gender_encoded, hypertension, heart_disease,
+                          glucose_level, work_type_encoded, residency_encoded,
+                          married_encoded, bmi, smoking_status_encoded):
+    # Replace this with your custom logic for calculating the probability
+    # This is just a placeholder, you should adjust it based on your actual model or rules
+    probability = 0.5  # Default probability
+    probability += 0.2 if age > 50 else 0
+    probability += 0.1 if hypertension == 1 else 0
+    probability += 0.1 if heart_disease == 1 else 0
+    probability += 0.1 if glucose_level > 150 else 0
+    probability += 0.1 if bmi > 25 else 0
+
+    return probability
+
+@app.route('/predict', methods=['POST'])
+def predict_stroke_route():
     if request.method == 'POST':
         form_data = request.form.to_dict()
         try:
             processed_features = preprocess_form_data(form_data)
-            # Apply scaling to the processed features
-            scaled_features = scaler.transform([processed_features])
-            prediction = model.predict(scaled_features)
-            result = "You are likely to get a stroke." if prediction[0] == 1 else "You are not likely to get a stroke."
+            app.logger.debug(f"Processed Features: {processed_features}")  # Add this line for debugging
+
+            # Call your prediction function directly
+            response = predict_stroke(processed_features)
+
+            # Add the prediction results to the response
+            prediction_proba = response['prediction_proba']
+            result = response['result']
+
+            # Prepare the response for JSON
+            json_response = {
+                'prediction_proba': prediction_proba,
+                'result': result
+            }
+
+            return render_template('index.html', prediction=json_response)
         except Exception as e:
             app.logger.error(f"Error processing form data or making prediction: {e}")
-            return "An error occurred during prediction.", 500
-        
-        return render_template('index.html', result=result)
+
+            # Return an error message with details
+            error_message = f"An error occurred during prediction: {str(e)}"
+            return render_template('index.html', error_message=error_message), 500
+
+
 
 def preprocess_form_data(form_data):
-    # Convert and preprocess form data here to match the structure of your training data
+    # Convert and preprocess form data to match the structure of your training data
+    # Modify this based on your specific feature names and types
     age = float(form_data['age'])
     gender = form_data['gender']
     hypertension = form_data['hypertension']
@@ -308,18 +319,17 @@ def preprocess_form_data(form_data):
     hypertension = 1 if hypertension.lower() == 'yes' else 0
     heart_disease = 1 if heart_disease.lower() == 'yes' else 0
 
-    # One-hot encode categorical variables (adjust based on your encoding)
     gender_encoded = 1 if gender.lower() == 'male' else 0
-    work_type_encoded = {'never_worked': 0, 'self_employed': 3, 'private': 2, 'children': 4, 'govt_job':0}[work_type]
+    work_type_encoded = {'never_worked': 0, 'self_employed': 3, 'private': 2, 'children': 4, 'govt_job': 0}[work_type]
     residency_encoded = 1 if residency.lower() == 'urban' else 0
     married_encoded = 1 if married.lower() == 'yes' else 0
     smoking_status_encoded = {'formerly_smoked': 1, 'never_smoked': 2, 'unknown': 0, 'smokes': 3}[smoking_status]
 
-    # Combine all features into a single array
     features = [age, gender_encoded, hypertension, heart_disease, glucose_level,
                 work_type_encoded, residency_encoded, married_encoded, bmi, smoking_status_encoded]
 
     return features
+
 
 if __name__ == '__main__':
     init_db()

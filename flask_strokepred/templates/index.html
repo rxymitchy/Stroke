@@ -93,13 +93,17 @@
                 <input type="number" class="form-control" id="bmi" name="bmi" placeholder="Enter your bmi">
             </div>
 
-            <button type="submit" class="btn btn-primary">Predict</button>
+            <button type="submit" class="btn btn-primary">Predict</button>    
+
         </form>
 
-        {% if result %}
-        <div class="mt-4">
-            <h3>{{ result }}</h3>
-        </div>
+        {% if prediction %}
+            <p>Prediction Result: {{ prediction.result }}</p>
+            <p>Prediction Probability: {{ prediction.prediction_proba }}</p>
+         {% endif %}
+    
+        {% if error_message %}
+            <p>Error: {{ error_message }}</p>
         {% endif %}
 
     </div>
