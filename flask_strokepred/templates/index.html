@@ -5,7 +5,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body>
+<body style="background-color: pink;">
     <div class="container">
         <h2 class="mt-4">Stroke Prediction</h2>
         <form action="/predict" method="post">
@@ -93,13 +93,17 @@
                 <input type="number" class="form-control" id="bmi" name="bmi" placeholder="Enter your bmi">
             </div>
 
-            <button type="submit" class="btn btn-primary">Predict</button>
+            <button type="submit" class="btn btn-primary">Predict</button>    
+
         </form>
 
-        {% if result %}
-        <div class="mt-4">
-            <h3>{{ result }}</h3>
-        </div>
+        {% if prediction %}
+            <p>Prediction Result: {{ prediction.result }}</p>
+            <p>Prediction Probability: {{ prediction.prediction_proba }}</p>
+         {% endif %}
+    
+        {% if error_message %}
+            <p>Error: {{ error_message }}</p>
         {% endif %}
 
     </div>
