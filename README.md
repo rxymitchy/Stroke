@@ -1,7 +1,3 @@
-Sure! Here’s a clean, professional README template for your **Stroke Prediction Project** that you can customize further if needed:
-
----
-
 # Stroke Prediction Project
 
 ## Overview
